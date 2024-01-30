@@ -34,6 +34,9 @@ machine_state_t state_s5_summary(signal_t *signal) {
 	case '\n':
 		result = STATE_S6;
 		break;
+	case '\r':
+		result = STATE_S41;
+		break;
 	default:
 		break;
 	}

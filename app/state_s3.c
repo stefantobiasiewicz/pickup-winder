@@ -84,6 +84,9 @@ machine_state_t state_s3_coil_turns_decision(signal_t *signal) {
 		number_buff[strlen(number_buff)-1] = '\0';
 		ui_changed = true;
 		break;
+	case '\r':
+		result = STATE_S2;
+		break;
 	default:
 		break;
 	}

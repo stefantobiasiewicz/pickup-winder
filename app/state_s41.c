@@ -83,6 +83,9 @@ machine_state_t state_s41_distance_decision(signal_t *signal) {
 		number_buff[strlen(number_buff)-1] = '\0';
 		ui_changed = true;
 		break;
+	case '\r':
+		result = STATE_S4;
+		break;
 	default:
 		break;
 	}

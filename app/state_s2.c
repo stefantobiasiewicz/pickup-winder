@@ -43,6 +43,9 @@ machine_state_t state_s2_cw_ccw_decision(signal_t * signal) {
 		cw = !cw;
 		ui_changed = true;
 		break;
+	case '\r':
+		result = STATE_S1;
+		break;
 	default:
 		break;
 	}
