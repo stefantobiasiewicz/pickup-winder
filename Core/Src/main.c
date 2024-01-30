@@ -24,6 +24,8 @@
 /* USER CODE BEGIN Includes */
 #include "usbh_hid.h"
 
+#include "../../app/winder_machine.h"
+#include "../libs/lcd16x2.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -62,29 +64,31 @@ void MX_USB_HOST_Process(void);
 /* USER CODE BEGIN 0 */
 void USBH_HID_EventCallback(USBH_HandleTypeDef *phost)
 {
-	if(USBH_HID_GetDeviceType(phost) == HID_MOUSE)  // if the HID is Mouse
-	{
-		HID_MOUSE_Info_TypeDef *Mouse_Info;
-		Mouse_Info = USBH_HID_GetMouseInfo(phost);  // Get the info
-		int X_Val = Mouse_Info->x;  // get the x value
-		int Y_Val = Mouse_Info->y;  // get the y value
-		if (X_Val > 127) X_Val -= 255;
-		if (Y_Val > 127) Y_Val -= 255;
-//		int len = sprintf (Uart_Buf, "X=%d, Y=%d, Button1=%d, Button2=%d, Button3=%d\n", X_Val, Y_Val, \
-//				                                Mouse_Info->buttons[0],Mouse_Info->buttons[1], Mouse_Info->buttons[2]);
-//		HAL_UART_Transmit(&huart2, (uint8_t *) Uart_Buf, len, 100);
-	}
-
 	if(USBH_HID_GetDeviceType(phost) == HID_KEYBOARD)  // if the HID is Mouse
 	{
 		uint8_t key;
 		HID_KEYBD_Info_TypeDef *Keyboard_Info;
 		Keyboard_Info = USBH_HID_GetKeybdInfo(phost);  // get the info
 		key = USBH_HID_GetASCIICode(Keyboard_Info);  // get the key pressed
-//		int len = sprintf (Uart_Buf, "Key Pressed = %c\n", key);
-//		HAL_UART_Transmit(&huart2, (uint8_t *) Uart_Buf, len, 100);
+
+		signal_t signal;
+		signal.key_pressed = key;
+		app_put_signal(signal);
 	}
 }
+
+
+
+void ll_print(char* _1st_line, char* _2nd_line) {
+    lcd16x2_clear();
+    lcd16x2_1stLine();
+    lcd16x2_printf(_1st_line);
+    lcd16x2_2ndLine();
+    lcd16x2_printf(_2nd_line);
+}
+
+
+
 /* USER CODE END 0 */
 
 /**
@@ -118,7 +122,15 @@ int main(void)
   MX_USART2_UART_Init();
   MX_USB_HOST_Init();
   /* USER CODE BEGIN 2 */
+  lcd16x2_init_4bits(GPIOB, LCD_RS_Pin, LCD_E_Pin,
+//      D0_GPIO_Port, D0_Pin, D1_Pin, D2_Pin, D3_Pin,
+		  GPIOC, LCD_D1_Pin, LCD_D2_Pin, LCD_D3_Pin, LCD_D4_Pin);
 
+  lcd16x2_printf("Winding Machine");
+  lcd16x2_cursorShow(false);
+
+
+  app_init(ll_print);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -129,6 +141,7 @@ int main(void)
     MX_USB_HOST_Process();
 
     /* USER CODE BEGIN 3 */
+    app_state_machine_loop();
   }
   /* USER CODE END 3 */
 }
@@ -231,6 +244,12 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, LD2_Pin|GPIO_PIN_10, GPIO_PIN_RESET);
 
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOC, LCD_D1_Pin|LCD_D2_Pin|LCD_D3_Pin|LCD_D4_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, LCD_RS_Pin|LCD_E_Pin, GPIO_PIN_RESET);
+
   /*Configure GPIO pin : B1_Pin */
   GPIO_InitStruct.Pin = B1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
@@ -243,6 +262,20 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : LCD_D1_Pin LCD_D2_Pin LCD_D3_Pin LCD_D4_Pin */
+  GPIO_InitStruct.Pin = LCD_D1_Pin|LCD_D2_Pin|LCD_D3_Pin|LCD_D4_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : LCD_RS_Pin LCD_E_Pin */
+  GPIO_InitStruct.Pin = LCD_RS_Pin|LCD_E_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */
