@@ -9,24 +9,20 @@
 /*
  * State variables;
  */
-static bool ui_changed = true;
 static bool cw = true;
 
 
 
 static void update_view() {
-	if (ui_changed == false) {
-		return;
-	}
-
-
 	if(cw) {
 		app_print("CW or CCW", " >CW  CCW");
 	} else {
 		app_print("CW or CCW", "  CW >CCW");
 	}
+}
 
-	ui_changed = false;
+void state_s2_change() {
+	update_view();
 }
 
 machine_state_t state_s2_cw_ccw_decision(signal_t * signal) {
@@ -34,6 +30,7 @@ machine_state_t state_s2_cw_ccw_decision(signal_t * signal) {
 
 	switch (signal->key_pressed) {
 	case '\n':
+	case '*':
 		result = STATE_S3;
 
 		machine_params.cw = cw;
@@ -41,16 +38,15 @@ machine_state_t state_s2_cw_ccw_decision(signal_t * signal) {
 	case '6':
 	case '4':
 		cw = !cw;
-		ui_changed = true;
+		update_view();
 		break;
-	case '\r':
+	case '/':
 		result = STATE_S1;
 		break;
 	default:
 		break;
 	}
 
-	update_view();
 
 	return result;
 }

@@ -30,6 +30,7 @@ typedef struct {
 typedef struct {
 	machine_state_t stateName;
 	machine_state_t (*state_func)(signal_t * signal);
+	void (*state_change_func)(void);
 } state_node_t;
 
 
@@ -39,13 +40,19 @@ typedef void (*print_fun_t)(char* _1st_line, char* _2nd_line);
  * Application states declaration
  */
 machine_state_t state_s1_main_page(signal_t * signal);
+void state_s1_change();
 machine_state_t state_s2_cw_ccw_decision(signal_t * signal);
+void state_s2_change();
 machine_state_t state_s3_coil_turns_decision(signal_t * signal);
+void state_s3_change();
 machine_state_t state_s4_wire_thick_decision(signal_t * signal);
+void state_s4_change();
 machine_state_t state_s41_distance_decision(signal_t * signal);
+void state_s41_change();
 machine_state_t state_s5_summary(signal_t * signal);
-//machine_state_t state_s6_run(signal_t * signal);
-
+void state_s5_change();
+machine_state_t state_s6_run(signal_t * signal);
+void state_s6_change();
 
 
 typedef struct {
@@ -54,6 +61,7 @@ typedef struct {
 	float wire_size;
 	float distance;
 	int speed;
+	bool manual;
 } machine_params_t;
 
 extern machine_params_t machine_params;

@@ -16,15 +16,26 @@ static print_fun_t print;
 
 
 state_node_t states[] = {
-		{STATE_S1, state_s1_main_page},
-		{STATE_S2, state_s2_cw_ccw_decision},
-		{STATE_S3, state_s3_coil_turns_decision},
-		{STATE_S4, state_s4_wire_thick_decision},
-		{STATE_S41, state_s41_distance_decision},
-		{STATE_S5, state_s5_summary},
-//		{STATE_S6, state_s6_run}
+		{STATE_S1, state_s1_main_page, state_s1_change},
+		{STATE_S2, state_s2_cw_ccw_decision, state_s2_change},
+		{STATE_S3, state_s3_coil_turns_decision, state_s3_change},
+		{STATE_S4, state_s4_wire_thick_decision, state_s4_change},
+		{STATE_S41, state_s41_distance_decision, state_s41_change},
+		{STATE_S5, state_s5_summary, state_s5_change},
+		{STATE_S6, state_s6_run, state_s6_change}
 };
 
+
+state_node_t* getState(machine_state_t state) {
+	for(int i = 0; i < sizeof(states)/sizeof(state_node_t); i++) {
+		if (states[i].stateName == current_state) {
+
+			return &states[i];
+		}
+	}
+
+	return NULL;
+}
 
 void app_init(print_fun_t print_fun){
 	fifo = fifo_create(10, sizeof(signal_t));
@@ -45,23 +56,34 @@ void app_state_machine_loop() {
 		return;
 	}
 
+	state_node_t * state = getState(current_state);
 
-	for(int i = 0; i < sizeof(states); i++) {
-		if (states[i].stateName == current_state) {
-			signal_t current_signal;
-
-			if (!fifo_is_empty(fifo)){
-				fifo_get(fifo, &current_signal);
-
-				machine_state_t next = states[i].state_func(&current_signal);
-				if (next == NO_CHANGE) {
-					return;
-				}
+	if(state == NULL) {
+		//todo error handling
+		return;
+	}
 
 
-				current_state = next;
-				return;
-			}
+	if (!fifo_is_empty(fifo)){
+		signal_t current_signal;
+		fifo_get(fifo, &current_signal);
+
+		machine_state_t next = state->state_func(&current_signal);
+		if (next == NO_CHANGE) {
+			return;
+		}
+
+
+		current_state = next;
+		state_node_t * next_state = getState(current_state);
+
+		if(next_state == NULL) {
+			//todo error handling
+			return;
+		}
+
+		if(next_state->state_change_func != NULL) {
+			next_state->state_change_func();
 		}
 	}
 }
