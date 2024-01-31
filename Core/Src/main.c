@@ -88,6 +88,15 @@ void ll_print(char* _1st_line, char* _2nd_line) {
 }
 
 
+void x_step_fun(bool dir) {
+
+}
+
+void y_step_fun(bool dir) {
+
+}
+
+
 
 /* USER CODE END 0 */
 
@@ -130,7 +139,7 @@ int main(void)
   lcd16x2_cursorShow(false);
 
 
-  app_init(ll_print);
+  app_init(ll_print, x_step_fun, y_step_fun);
   /* USER CODE END 2 */
 
   /* Infinite loop */

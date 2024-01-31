@@ -13,6 +13,9 @@ machine_params_t machine_params;
 static machine_state_t current_state = STATE_S1;
 static fifo_t fifo;
 static print_fun_t print;
+static step_fun_t x_step_fun;
+static step_fun_t y_step_fun;
+
 
 
 state_node_t states[] = {
@@ -37,9 +40,11 @@ state_node_t* getState(machine_state_t state) {
 	return NULL;
 }
 
-void app_init(print_fun_t print_fun){
+void app_init(print_fun_t print_fun, step_fun_t x_step, step_fun_t y_step){
 	fifo = fifo_create(10, sizeof(signal_t));
 	print = print_fun;
+	x_step_fun = x_step;
+	y_step_fun = y_step;
 }
 
 
@@ -86,5 +91,12 @@ void app_state_machine_loop() {
 			next_state->state_change_func();
 		}
 	}
+}
+
+void x_stepper_step(bool dir) {
+	x_step_fun(dir);
+}
+void y_stepper_step(bool dir) {
+	y_step_fun(dir);
 }
 

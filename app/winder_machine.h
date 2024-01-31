@@ -35,6 +35,7 @@ typedef struct {
 
 
 typedef void (*print_fun_t)(char* _1st_line, char* _2nd_line);
+typedef void (*step_fun_t)(bool dir);
 
 /*
  * Application states declaration
@@ -54,6 +55,9 @@ void state_s5_change();
 machine_state_t state_s6_run(signal_t * signal);
 void state_s6_change();
 
+void x_stepper_step(bool dir);
+void y_stepper_step(bool dir);
+
 
 typedef struct {
 	bool cw;
@@ -67,12 +71,15 @@ typedef struct {
 extern machine_params_t machine_params;
 
 
-void app_init(print_fun_t print_fun);
+void app_init(print_fun_t print_fun, step_fun_t x_step, step_fun_t y_step);
 void app_put_signal(signal_t signal);
 void app_state_machine_loop();
 
 
 void app_print(char* _1st_line, char* _2nd_line);
+
+
+void app_machine_rotated_indicator();
 
 
 #endif /* WINDER_MACHINE_H_ */
