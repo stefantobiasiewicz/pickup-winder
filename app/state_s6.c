@@ -27,6 +27,14 @@ typedef enum {
 } wind_process_t;
 
 static wind_process_t machine_state = STOP;
+static int turns;
+static float distance;
+static volatile bool one_rotation_done;
+static bool dir;
+static int speed_table[10] = {
+	750, 500, 400, 360, 230, 130, 70, 50, 30, 20
+};
+static long long machineTime;
 /*
  * fuction declaration
  */
@@ -34,7 +42,7 @@ void machine_move();
 
 static void update_view() {
 	sprintf(line_1, "%-3s F%2d %s", machine_params.cw == true ? "CW" : "CCW", machine_params.speed, machine_params.manual == true ? "MANUAL" : "AUTO");
-	sprintf(line_2, "%-5dT   %-5dT", actual_turns,
+	sprintf(line_2, "%-5dT   %-5dT", turns,
 			machine_params.coil_turns);
 
 	app_print(line_1, line_2);
@@ -53,9 +61,18 @@ void state_s6_change() {
 machine_state_t state_s6_run(signal_t *signal) {
 	machine_state_t result = NO_CHANGE;
 
+
+	machine_move();
+
+
+	if(signal == NULL) {
+		return result;
+	}
+
 	switch (signal->key_pressed) {
 	case '\n':
 		machine_params.manual = !machine_params.manual;
+		motor_enable(!machine_params.manual);
 		update_view();
 		break;
 	case '2':
@@ -74,8 +91,6 @@ machine_state_t state_s6_run(signal_t *signal) {
 		break;
 	}
 
-	//todo running application
-	machine_move();
 
 	return result;
 }
@@ -86,18 +101,7 @@ machine_state_t state_s6_run(signal_t *signal) {
 
 
 
-static int turns;
-static float distance;
-static volatile bool one_rotation_done;
-static bool dir;
-static int speed_table[10] = {
-    10000, 9500, 9000, 8500, 8000, 7500, 7000, 6500, 6000, 5500
-};
-static long long machineTime;
 
-long long currentTimeUs() {
-	return HAL_GetTick();
-}
 
 void machine_init() {
 	machineTime = currentTimeUs();
@@ -116,6 +120,7 @@ void machine_move() {
 		break;
 	case BEGGIN:
 		machine_init();
+		machine_state = ROTATE_COIL;
 		break;
 	case ROTATE_COIL:
 		rotate();
@@ -134,7 +139,10 @@ void machine_move() {
 
 void rotate() {
 	if(one_rotation_done) {
+		one_rotation_done = false;
 		machine_state = MOVE_WIRE;
+		turns++;
+		update_view();
 		return;
 	}
 
@@ -146,18 +154,27 @@ void rotate() {
 	long long elapsedTime = currentTime - machineTime;
 
 	// Move the motor if enough time has elapsed
-	if (elapsedTime >= speed_table[machine_params.speed]) {
+	if (elapsedTime >= speed_table[machine_params.speed- 1 ]) { // speded can be form 1 to 10
 
 		x_stepper_step(machine_params.cw);
 		// Update the time of the last step
-		machineTime = currentTime;
+		machineTime = currentTimeUs();
 	}
 }
 
+static float last_distance = 0;
+
 void move_wire() {
-	if(machine_params.distance >= distance) {
+	if(machine_params.distance <= distance) {
 		machine_state = CHANGE_DIR;
 		distance = 0;
+		last_distance = 0;
+		return;
+	}
+
+	if(machine_params.wire_size <= distance - last_distance) {
+		last_distance = distance;
+		machine_state = ROTATE_COIL;
 		return;
 	}
 
@@ -165,18 +182,19 @@ void move_wire() {
 	long long elapsedTime = currentTime - machineTime;
 
 	// Move the motor if enough time has elapsed
-	if (elapsedTime >= speed_table[0]) {
+	if (elapsedTime >= speed_table[5]) {
 
 		y_stepper_step(dir);
 		// Update the time of the last step
 
-		distance += 0.01;
+		distance += 0.04; // 8mm screw per rotor -> 200 steps 8/200 -> one step 0.04mm
 		machineTime = currentTime;
 	}
 }
 
 void change_dir() {
 	dir = !dir;
+	machine_state = ROTATE_COIL;
 }
 
 /*

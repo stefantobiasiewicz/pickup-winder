@@ -25,6 +25,10 @@ void state_s41_change() {
 machine_state_t state_s41_distance_decision(signal_t *signal) {
 	machine_state_t result = NO_CHANGE;
 
+	if(signal == NULL) {
+		return result;
+	}
+
 	switch (signal->key_pressed) {
 	case '\n':
 	case '*':

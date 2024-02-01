@@ -28,6 +28,11 @@ void state_s2_change() {
 machine_state_t state_s2_cw_ccw_decision(signal_t * signal) {
 	machine_state_t result = NO_CHANGE;
 
+
+	if(signal == NULL) {
+		return result;
+	}
+
 	switch (signal->key_pressed) {
 	case '\n':
 	case '*':

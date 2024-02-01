@@ -15,6 +15,8 @@ static fifo_t fifo;
 static print_fun_t print;
 static step_fun_t x_step_fun;
 static step_fun_t y_step_fun;
+static get_us_fun_t get_us_fun;
+static motor_enable_fun_t motor_enable_fun;
 
 
 
@@ -40,11 +42,13 @@ state_node_t* getState(machine_state_t state) {
 	return NULL;
 }
 
-void app_init(print_fun_t print_fun, step_fun_t x_step, step_fun_t y_step){
+void app_init(print_fun_t print_fun, step_fun_t x_step, step_fun_t y_step, get_us_fun_t get_us, motor_enable_fun_t motor_enable){
 	fifo = fifo_create(10, sizeof(signal_t));
 	print = print_fun;
 	x_step_fun = x_step;
 	y_step_fun = y_step;
+	get_us_fun = get_us;
+	motor_enable_fun = motor_enable;
 }
 
 
@@ -68,28 +72,32 @@ void app_state_machine_loop() {
 		return;
 	}
 
-
+	machine_state_t next;
 	if (!fifo_is_empty(fifo)){
 		signal_t current_signal;
 		fifo_get(fifo, &current_signal);
 
-		machine_state_t next = state->state_func(&current_signal);
+		next = state->state_func(&current_signal);
 		if (next == NO_CHANGE) {
 			return;
 		}
-
-
-		current_state = next;
-		state_node_t * next_state = getState(current_state);
-
-		if(next_state == NULL) {
-			//todo error handling
+	} else {
+		next = state->state_func(NULL);
+		if (next == NO_CHANGE) {
 			return;
 		}
+	}
 
-		if(next_state->state_change_func != NULL) {
-			next_state->state_change_func();
-		}
+	current_state = next;
+	state_node_t * next_state = getState(current_state);
+
+	if(next_state == NULL) {
+		//todo error handling
+		return;
+	}
+
+	if(next_state->state_change_func != NULL) {
+		next_state->state_change_func();
 	}
 }
 
@@ -99,4 +107,10 @@ void x_stepper_step(bool dir) {
 void y_stepper_step(bool dir) {
 	y_step_fun(dir);
 }
+void motor_enable(bool en) {
+	motor_enable_fun(en);
+}
 
+long currentTimeUs() {
+	return get_us_fun();
+}

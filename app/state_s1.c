@@ -23,6 +23,10 @@ void state_s1_change() {
 machine_state_t state_s1_main_page(signal_t * signal) {
 	machine_state_t result = NO_CHANGE;
 
+	if(signal == NULL) {
+		return result;
+	}
+
 	switch (signal->key_pressed) {
 	case '\n':
 	case '*':

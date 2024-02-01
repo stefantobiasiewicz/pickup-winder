@@ -34,8 +34,13 @@ typedef struct {
 } state_node_t;
 
 
+/*
+ * callbacks def for cotrioll machine
+ */
 typedef void (*print_fun_t)(char* _1st_line, char* _2nd_line);
 typedef void (*step_fun_t)(bool dir);
+typedef void (*motor_enable_fun_t)(bool dir);
+typedef long (*get_us_fun_t)();
 
 /*
  * Application states declaration
@@ -55,8 +60,13 @@ void state_s5_change();
 machine_state_t state_s6_run(signal_t * signal);
 void state_s6_change();
 
+/*
+ * callbacks for cotrioll machine
+ */
 void x_stepper_step(bool dir);
+void motor_enable(bool en);
 void y_stepper_step(bool dir);
+long currentTimeUs();
 
 
 typedef struct {
@@ -71,7 +81,7 @@ typedef struct {
 extern machine_params_t machine_params;
 
 
-void app_init(print_fun_t print_fun, step_fun_t x_step, step_fun_t y_step);
+void app_init(print_fun_t print_fun, step_fun_t x_step, step_fun_t y_step, get_us_fun_t get_us, motor_enable_fun_t motor_enable);
 void app_put_signal(signal_t signal);
 void app_state_machine_loop();
 

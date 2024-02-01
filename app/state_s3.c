@@ -28,6 +28,10 @@ void state_s3_change() {
 machine_state_t state_s3_coil_turns_decision(signal_t *signal) {
 	machine_state_t result = NO_CHANGE;
 
+	if(signal == NULL) {
+		return result;
+	}
+
 	switch (signal->key_pressed) {
 	case '\n':
 	case '*':

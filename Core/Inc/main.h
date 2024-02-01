@@ -65,6 +65,8 @@ void Error_Handler(void);
 #define USART_RX_GPIO_Port GPIOA
 #define LD2_Pin GPIO_PIN_5
 #define LD2_GPIO_Port GPIOA
+#define LCD_D4_Pin GPIO_PIN_4
+#define LCD_D4_GPIO_Port GPIOC
 #define LCD_D1_Pin GPIO_PIN_5
 #define LCD_D1_GPIO_Port GPIOC
 #define LCD_RS_Pin GPIO_PIN_1
@@ -73,19 +75,30 @@ void Error_Handler(void);
 #define LCD_E_GPIO_Port GPIOB
 #define LCD_D2_Pin GPIO_PIN_6
 #define LCD_D2_GPIO_Port GPIOC
+#define HALL_Pin GPIO_PIN_7
+#define HALL_GPIO_Port GPIOC
+#define HALL_EXTI_IRQn EXTI9_5_IRQn
 #define LCD_D3_Pin GPIO_PIN_8
 #define LCD_D3_GPIO_Port GPIOC
-#define LCD_D4_Pin GPIO_PIN_9
-#define LCD_D4_GPIO_Port GPIOC
+#define Z_DIR_Pin GPIO_PIN_8
+#define Z_DIR_GPIO_Port GPIOA
+#define MOTOR_EN_Pin GPIO_PIN_9
+#define MOTOR_EN_GPIO_Port GPIOA
+#define X_STEP_Pin GPIO_PIN_10
+#define X_STEP_GPIO_Port GPIOA
 #define TMS_Pin GPIO_PIN_13
 #define TMS_GPIO_Port GPIOA
 #define TCK_Pin GPIO_PIN_14
 #define TCK_GPIO_Port GPIOA
 #define SWO_Pin GPIO_PIN_3
 #define SWO_GPIO_Port GPIOB
+#define X_DIR_Pin GPIO_PIN_4
+#define X_DIR_GPIO_Port GPIOB
+#define Z_STEP_Pin GPIO_PIN_5
+#define Z_STEP_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
-
+void update_us_timer();
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
