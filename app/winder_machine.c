@@ -9,25 +9,38 @@
 #include "libs/FIFO.h"
 
 machine_params_t machine_params;
+machine_static_params_t machine_static_params;
 
-static machine_state_t current_state = STATE_S1;
+static machine_state_t current_state = STATE_S05;
 static fifo_t fifo;
 static print_fun_t print;
 static step_fun_t x_step_fun;
 static step_fun_t y_step_fun;
 static get_us_fun_t get_us_fun;
 static motor_enable_fun_t motor_enable_fun;
-
+static write_flash_fun_t write_flash_fun;
+static read_flash_fun_t read_flash_fun;
 
 
 state_node_t states[] = {
+		/* INIT */
+		{STATE_S05, state_s05_init_flash, state_s05_change},
+		/* SETTINGS */
 		{STATE_S1, state_s1_main_page, state_s1_change},
+		{STATE_S11, state_s11_settings_page, state_s11_change},
+		{STATE_S12, state_s12_settings_menu, state_s12_change},
+		{STATE_S13, state_s13_settings_xmotor, state_s13_change},
+		{STATE_S14, state_s14_settings_xscrew, state_s14_change},
+		{STATE_S15, state_s15_settings_ymove, state_s15_change},
+		/* MANIN WORKFLOW */
 		{STATE_S2, state_s2_cw_ccw_decision, state_s2_change},
 		{STATE_S3, state_s3_coil_turns_decision, state_s3_change},
 		{STATE_S4, state_s4_wire_thick_decision, state_s4_change},
 		{STATE_S41, state_s41_distance_decision, state_s41_change},
 		{STATE_S5, state_s5_summary, state_s5_change},
-		{STATE_S6, state_s6_run, state_s6_change}
+		{STATE_S6, state_s6_run, state_s6_change},
+		{STATE_S61, state_s61_cancel, state_s61_change},
+		{STATE_S7, state_s7_done, state_s7_change}
 };
 
 
@@ -42,13 +55,15 @@ state_node_t* getState(machine_state_t state) {
 	return NULL;
 }
 
-void app_init(print_fun_t print_fun, step_fun_t x_step, step_fun_t y_step, get_us_fun_t get_us, motor_enable_fun_t motor_enable){
+void app_init(print_fun_t print_fun, step_fun_t x_step, step_fun_t y_step, get_us_fun_t get_us, motor_enable_fun_t motor_enable, write_flash_fun_t write_flash, read_flash_fun_t read_flash){
 	fifo = fifo_create(10, sizeof(signal_t));
 	print = print_fun;
 	x_step_fun = x_step;
 	y_step_fun = y_step;
 	get_us_fun = get_us;
 	motor_enable_fun = motor_enable;
+	write_flash_fun = write_flash;
+	read_flash_fun = read_flash;
 }
 
 
@@ -113,4 +128,12 @@ void motor_enable(bool en) {
 
 long currentTimeUs() {
 	return get_us_fun();
+}
+
+void read_flash(machine_static_params_t * machine_static_params) {
+	read_flash_fun(machine_static_params);
+}
+
+void write_flash(machine_static_params_t * machine_static_params) {
+	write_flash_fun(machine_static_params);
 }

@@ -26,6 +26,7 @@
 
 #include "../../app/winder_machine.h"
 #include "../libs/lcd16x2.h"
+#include "../libs/eeprom.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -115,6 +116,58 @@ long get_us_fun() {
 	return us_tick;
 }
 
+
+//#define FLASH_DATA_ADDRESS 0x08060000
+#define FLASH_DATA_ADDRESS 0x0
+uint16_t VirtAddVarTab[NB_OF_VAR];
+
+void ll_read_flash(machine_static_params_t * machine_static_params) {
+//	uint32_t address = FLASH_DATA_ADDRESS;
+//
+//	for (int i = 0; i < sizeof(machine_static_params_t); i+=2) {
+//		EE_ReadVariable(VirtAddVarTab[address], (uint16_t *)(machine_static_params + i));
+//		address += i;
+//	}
+//	uint32_t address = FLASH_DATA_ADDRESS;
+//
+//	for (int i = 0; i < sizeof(machine_static_params_t); i++) {
+//		*(uint8_t *)(machine_static_params + i) = *(__IO uint32_t *)address;
+//		address += i;
+//	}
+}
+
+void ll_write_flash(machine_static_params_t * machine_static_params) {
+//	uint32_t address = FLASH_DATA_ADDRESS;
+//
+//	for (int i = 0; i < sizeof(machine_static_params_t); i+=2) {
+//		EE_WriteVariable(VirtAddVarTab[address], *(uint16_t *)(machine_static_params + i));
+//		address += i;
+//	}
+
+
+//	static FLASH_EraseInitTypeDef EraseInitStruct;
+//	uint32_t PAGEError;
+//
+//	  /* Unlock the Flash to enable the flash control register access *************/
+//	HAL_FLASH_Unlock();
+//	EraseInitStruct.Sector = FLASH_SECTOR_7;
+//	EraseInitStruct.NbSectors = 1;
+//	EraseInitStruct.TypeErase = FLASH_TYPEERASE_SECTORS;
+//	EraseInitStruct.VoltageRange = VOLTAGE_RANGE_3;
+//	EraseInitStruct.Banks = FLASH_BANK_1;
+//
+//	if (HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError) != HAL_OK)
+//	{
+//		Error_Handler();
+//	}
+//
+//
+//	for (int i = 0; i < sizeof(machine_static_params_t); i++) {
+//	    HAL_FLASH_Program(FLASH_TYPEPROGRAM_BYTE, FLASH_DATA_ADDRESS + i, *(uint8_t *)(machine_static_params + i));
+//	}
+//
+//	HAL_FLASH_Lock(); //lock the flash
+}
 /* USER CODE END 0 */
 
 /**
@@ -156,8 +209,13 @@ int main(void)
   lcd16x2_printf("Winding Machine");
   lcd16x2_cursorShow(false);
 
+//  HAL_FLASH_Unlock();
+//  if(EE_Init() != EE_OK)
+//  {
+//    Error_Handler();
+//  }
 
-  app_init(ll_print, x_step_fun, y_step_fun, get_us_fun, motor_enable_fun);
+  app_init(ll_print, x_step_fun, y_step_fun, get_us_fun, motor_enable_fun, ll_write_flash, ll_read_flash);
   motor_enable_fun(false);
 
   HAL_TIM_Base_Start_IT(&htim3);
