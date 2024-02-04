@@ -11,10 +11,8 @@
  */
 static bool cw = true;
 
-
-
 static void update_view() {
-	if(cw) {
+	if (cw) {
 		app_print("CW or CCW", " >CW  CCW");
 	} else {
 		app_print("CW or CCW", "  CW >CCW");
@@ -25,11 +23,10 @@ void state_s2_change() {
 	update_view();
 }
 
-machine_state_t state_s2_cw_ccw_decision(signal_t * signal) {
+machine_state_t state_s2_cw_ccw_decision(signal_t *signal) {
 	machine_state_t result = NO_CHANGE;
 
-
-	if(signal == NULL) {
+	if (signal == NULL) {
 		return result;
 	}
 
@@ -51,7 +48,6 @@ machine_state_t state_s2_cw_ccw_decision(signal_t * signal) {
 	default:
 		break;
 	}
-
 
 	return result;
 }

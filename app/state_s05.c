@@ -10,14 +10,12 @@
  * State variables;
  */
 
-
 void state_s05_change() {
 
 }
 
-machine_state_t state_s05_init_flash(signal_t * signal) {
+machine_state_t state_s05_init_flash(signal_t *signal) {
 	machine_state_t result = STATE_S1;
-
 
 	read_flash(&machine_static_params);
 

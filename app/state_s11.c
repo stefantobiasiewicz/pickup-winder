@@ -10,7 +10,6 @@
  * State variables;
  */
 
-
 static void update_view() {
 	app_print("Wind coil", ">Settings");
 
@@ -20,10 +19,10 @@ void state_s11_change() {
 	update_view();
 }
 
-machine_state_t state_s11_settings_page(signal_t * signal) {
+machine_state_t state_s11_settings_page(signal_t *signal) {
 	machine_state_t result = NO_CHANGE;
 
-	if(signal == NULL) {
+	if (signal == NULL) {
 		return result;
 	}
 
@@ -38,7 +37,6 @@ machine_state_t state_s11_settings_page(signal_t * signal) {
 	default:
 		break;
 	}
-
 
 	return result;
 }

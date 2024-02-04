@@ -10,11 +10,10 @@
  * State variables;
  */
 
-
 static char line_1[16];
 static char line_2[16];
 
-static char number_buff[10] = {0};
+static char number_buff[10] = { 0 };
 
 static void update_view() {
 	sprintf(line_1, "Y move:");
@@ -27,85 +26,85 @@ void state_s15_change() {
 	update_view();
 }
 
-machine_state_t state_s15_settings_ymove(signal_t * signal) {
+machine_state_t state_s15_settings_ymove(signal_t *signal) {
 	machine_state_t result = NO_CHANGE;
 
-	if(signal == NULL) {
+	if (signal == NULL) {
 		return result;
 	}
 
 	switch (signal->key_pressed) {
-		case '\n':
-		case '*':
-			result = STATE_S12;
+	case '\n':
+	case '*':
+		result = STATE_S12;
 
-			int y_steps = atoi(number_buff);
+		int y_steps = atoi(number_buff);
 
-			motor_enable(true);
-			long time = currentTimeUs();
-			while(!(y_steps <= 0)) {
-				long long currentTime = currentTimeUs();
-				long long elapsedTime = currentTime - time;
+		motor_enable(true);
+		long time = currentTimeUs();
+		while (!(y_steps <= 0)) {
+			long long currentTime = currentTimeUs();
+			long long elapsedTime = currentTime - time;
 
-				if (elapsedTime >= 100) {
-					y_stepper_step(true);
-					y_steps--;
-					time = currentTime;
-				}
+			if (elapsedTime >= 100) {
+				y_stepper_step(true);
+				y_steps--;
+				time = currentTime;
 			}
-			motor_enable(false);
-
-			break;
-		case '1':
-			strcat(number_buff, "1");
-			update_view();
-			break;
-		case '2':
-		    strcat(number_buff, "2");
-			update_view();
-			break;
-		case '3':
-		    strcat(number_buff, "3");
-			update_view();
-			break;
-		case '4':
-		    strcat(number_buff, "4");
-			update_view();
-			break;
-		case '5':
-		    strcat(number_buff, "5");
-			update_view();
-			break;
-		case '6':
-		    strcat(number_buff, "6");
-			update_view();
-			break;
-		case '7':
-		    strcat(number_buff, "7");
-			update_view();
-			break;
-		case '8':
-		    strcat(number_buff, "8");
-			update_view();
-			break;
-		case '9':
-		    strcat(number_buff, "9");
-			update_view();
-			break;
-		case '0':
-		    strcat(number_buff, "0");
-			update_view();
-			break;
-		case '\r':
-			number_buff[strlen(number_buff)-1] = '\0';
-			update_view();
-			break;
-		case '/':
-			result = STATE_S12;
-			break;
-		default:
-			break;
 		}
+		motor_enable(false);
+
+		break;
+	case '1':
+		strcat(number_buff, "1");
+		update_view();
+		break;
+	case '2':
+		strcat(number_buff, "2");
+		update_view();
+		break;
+	case '3':
+		strcat(number_buff, "3");
+		update_view();
+		break;
+	case '4':
+		strcat(number_buff, "4");
+		update_view();
+		break;
+	case '5':
+		strcat(number_buff, "5");
+		update_view();
+		break;
+	case '6':
+		strcat(number_buff, "6");
+		update_view();
+		break;
+	case '7':
+		strcat(number_buff, "7");
+		update_view();
+		break;
+	case '8':
+		strcat(number_buff, "8");
+		update_view();
+		break;
+	case '9':
+		strcat(number_buff, "9");
+		update_view();
+		break;
+	case '0':
+		strcat(number_buff, "0");
+		update_view();
+		break;
+	case '\r':
+		number_buff[strlen(number_buff) - 1] = '\0';
+		update_view();
+		break;
+	case '/':
+		result = STATE_S12;
+		break;
+	default:
+		break;
+	}
 
 	return result;
 }

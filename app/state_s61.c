@@ -27,7 +27,7 @@ void state_s61_change() {
 machine_state_t state_s61_cancel(signal_t *signal) {
 	machine_state_t result = NO_CHANGE;
 
-	if(signal == NULL) {
+	if (signal == NULL) {
 		return result;
 	}
 
