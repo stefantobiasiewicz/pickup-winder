@@ -24,7 +24,7 @@ static int turns;
 static float distance;
 static volatile bool one_rotation_done;
 static bool dir;
-static int speed_table[10] = { 230, 130, 70, 30, 20, 18 ,16, 12, 11, 10 };
+static int speed_table[10] = { 230, 130, 70, 30, 20, 18, 16, 12, 11, 10 };
 static long long machineTime_x;
 static long long machineTime_y;
 static float last_distance = 0;
@@ -164,7 +164,6 @@ static void rotate() {
 	}
 }
 
-
 static void move_wire() {
 	if (machine_params.distance <= distance) {
 		machine_state = CHANGE_DIR;
@@ -193,12 +192,11 @@ static void move_wire() {
 	// Move the motor if enough time has elapsed
 	if (elapsedTime >= speed_table[2]) {
 
-
-
 		y_stepper_step(dir);
 		// Update the time of the last step
 
-		float add = machine_static_params.x_screw/machine_static_params.x_motor_steps;
+		float add = machine_static_params.x_screw
+				/ machine_static_params.x_motor_steps;
 		distance += add; // 8mm screw per rotor -> 200 steps 8/200 -> one step 0.04mm
 		machineTime_y = currentTime;
 	}

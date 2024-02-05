@@ -16,7 +16,7 @@ typedef struct {
 } menu_t;
 
 menu_t menu[] = { { STATE_S13, "X Steps" }, { STATE_S14, "X Screw" }, {
-		STATE_S15, "Move X" }, };
+		STATE_S15, "Move X" }, {STATE_S12, " " } };
 int8_t menu_iteator = 0;
 #define MENU_COUNT 3
 
@@ -25,7 +25,7 @@ static char line_2[16];
 
 static void update_view() {
 	sprintf(line_1, "%s <", menu[menu_iteator].name);
-	sprintf(line_2, "%s", menu[(menu_iteator + 1) % MENU_COUNT].name);
+	sprintf(line_2, "%s", menu[(menu_iteator + 1)].name);
 
 	app_print(line_1, line_2);
 }

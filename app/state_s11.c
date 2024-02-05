@@ -11,7 +11,7 @@
  */
 
 static void update_view() {
-	app_print("Wind coil", ">Settings");
+	app_print("Wind coil", "Settings <");
 
 }
 
