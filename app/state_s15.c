@@ -17,7 +17,7 @@ static char number_buff[10] = { 0 };
 
 static void update_view() {
 	sprintf(line_1, "Y move:");
-	sprintf(line_2, ">%-10ssteps", number_buff);
+	sprintf(line_2, ">%-11ssteps", number_buff);
 
 	app_print(line_1, line_2);
 }

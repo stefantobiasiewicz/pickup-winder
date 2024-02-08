@@ -16,9 +16,9 @@ typedef struct {
 } menu_t;
 
 menu_t menu[] = { { STATE_S13, "X Steps" }, { STATE_S14, "X Screw" }, {
-		STATE_S15, "Move X" }, {STATE_S12, " " } };
+		STATE_S15, "Move X" }, 	{STATE_S16, "Moving X" }, {STATE_S12, " " } };
 int8_t menu_iteator = 0;
-#define MENU_COUNT 3
+#define MENU_COUNT 4
 
 static char line_1[16];
 static char line_2[16];

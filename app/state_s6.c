@@ -21,13 +21,17 @@ typedef enum {
 
 static wind_process_t machine_state = STOP;
 static int turns;
-static float distance;
 static volatile bool one_rotation_done;
 static bool dir;
 static int speed_table[10] = { 230, 130, 70, 30, 20, 18, 16, 12, 11, 10 };
 static long long machineTime_x;
 static long long machineTime_y;
-static float last_distance = 0;
+
+int distance_steps;
+int distance_wire_steps;
+
+int machine_x_distance_steps;
+int machine_x_last_distance_steps;
 /*
  * fuction declaration
  */
@@ -103,10 +107,17 @@ static void machine_init() {
 	machineTime_x = currentTimeUs();
 	machineTime_y = currentTimeUs();
 	dir = true;
-	distance = 0;
-	last_distance = 0;
 	turns = 0;
 	one_rotation_done = false;
+
+
+	float mm_per_step = machine_static_params.x_screw / machine_static_params.x_motor_steps;
+
+	distance_steps = machine_params.distance / mm_per_step;
+	distance_wire_steps = machine_params.wire_size / mm_per_step;
+
+	machine_x_distance_steps = 0;
+	machine_x_last_distance_steps = 0;
 }
 
 /*
@@ -164,17 +175,18 @@ static void rotate() {
 	}
 }
 
+
 static void move_wire() {
-	if (machine_params.distance <= distance) {
+	if (machine_x_distance_steps >= distance_steps) {
 		machine_state = CHANGE_DIR;
-		distance = 0;
-		last_distance = 0;
+		machine_x_distance_steps = 0;
+		machine_x_last_distance_steps = 0;
 		return;
 	}
 
-	float delta_distance = distance - last_distance;
-	if (machine_params.wire_size <= delta_distance) {
-		last_distance = distance;
+	int delta_distance = machine_x_distance_steps - machine_x_last_distance_steps;
+	if (distance_wire_steps <= delta_distance) {
+		machine_x_last_distance_steps = machine_x_distance_steps;
 		machine_state = ROTATE_COIL;
 		if (machine_params.manual) {
 			motor_enable(false);
@@ -190,14 +202,12 @@ static void move_wire() {
 	long long elapsedTime = currentTime - machineTime_y;
 
 	// Move the motor if enough time has elapsed
-	if (elapsedTime >= speed_table[2]) {
+	if (elapsedTime >= speed_table[3]) {
 
 		y_stepper_step(dir);
-		// Update the time of the last step
+		machine_x_distance_steps ++;
 
-		float add = machine_static_params.x_screw
-				/ machine_static_params.x_motor_steps;
-		distance += add; // 8mm screw per rotor -> 200 steps 8/200 -> one step 0.04mm
+		// Update the time of the last step
 		machineTime_y = currentTime;
 	}
 }
@@ -209,7 +219,9 @@ static void change_dir() {
 
 static void machine_stop() {
 	machine_state = STOP;
-	last_distance = 0;
+	//todo idk if it is nessesary
+	machine_x_distance_steps = 0;
+	machine_x_last_distance_steps = 0;
 	motor_enable(false);
 }
 

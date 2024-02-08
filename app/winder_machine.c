@@ -30,7 +30,8 @@ state_node_t states[] = {
 		state_s12_settings_menu, state_s12_change }, { STATE_S13,
 		state_s13_settings_xmotor, state_s13_change }, { STATE_S14,
 		state_s14_settings_xscrew, state_s14_change }, { STATE_S15,
-		state_s15_settings_ymove, state_s15_change },
+		state_s15_settings_ymove, state_s15_change },{ STATE_S16,
+				state_s16_settings_ymoving, state_s16_change },
 /* MANIN WORKFLOW */
 { STATE_S2, state_s2_cw_ccw_decision, state_s2_change }, { STATE_S3,
 		state_s3_coil_turns_decision, state_s3_change }, { STATE_S4,

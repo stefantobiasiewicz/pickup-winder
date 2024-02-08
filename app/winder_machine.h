@@ -20,6 +20,7 @@ typedef enum {
 	STATE_S13,
 	STATE_S14,
 	STATE_S15,
+	STATE_S16,
 	STATE_S2,
 	STATE_S3,
 	STATE_S4,
@@ -91,6 +92,8 @@ machine_state_t state_s14_settings_xscrew(signal_t *signal);
 void state_s14_change();
 machine_state_t state_s15_settings_ymove(signal_t *signal);
 void state_s15_change();
+machine_state_t state_s16_settings_ymoving(signal_t *signal);
+void state_s16_change();
 machine_state_t state_s2_cw_ccw_decision(signal_t *signal);
 void state_s2_change();
 machine_state_t state_s3_coil_turns_decision(signal_t *signal);
