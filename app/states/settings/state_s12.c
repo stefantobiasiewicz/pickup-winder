@@ -5,7 +5,7 @@
  *      Author: stefantobiasiewicz
  */
 
-#include "winder_machine.h"
+#include "../../winder_machine.h"
 /*
  * State variables;
  */
@@ -44,6 +44,7 @@ machine_state_t state_s12_settings_menu(signal_t *signal) {
 	switch (signal->key_pressed) {
 	case '\n':
 	case '*':
+		// goto next state witch is menu state 
 		result = menu[menu_iteator].state;
 		break;
 	case '8':

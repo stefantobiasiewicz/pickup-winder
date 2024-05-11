@@ -5,7 +5,7 @@
  *      Author: stefantobiasiewicz
  */
 
-#include "winder_machine.h"
+#include "../../winder_machine.h"
 /*
  * State variables;
  */

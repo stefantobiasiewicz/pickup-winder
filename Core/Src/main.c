@@ -107,6 +107,10 @@ void y_step_fun(bool dir) {
 	HAL_GPIO_WritePin(Z_STEP_GPIO_Port, Z_STEP_Pin, GPIO_PIN_RESET);
 }
 
+void set_motor_pwm(int pwm){
+
+}
+
 static long long us_tick = 0;
 void update_us_timer() {
 	us_tick++;
@@ -212,8 +216,18 @@ int main(void) {
 //    Error_Handler();
 //  }
 
-	app_init(ll_print, x_step_fun, y_step_fun, get_us_fun, motor_enable_fun,
-			ll_write_flash, ll_read_flash);
+	machine_control_t machine_controll_callbacks = {
+			.get_us_fun = get_us_fun,
+			.motor_enable_fun = motor_enable_fun,
+			.print_fun = ll_print,
+			.read_flash_fun = ll_read_flash,
+			.set_motor_pwm = set_motor_pwm,
+			.step_fun_x = x_step_fun,
+			.step_fun_y = y_step_fun,
+			.write_flash_fun = ll_write_flash,
+	};
+
+	app_init(machine_controll_callbacks);
 	motor_enable_fun(false);
 
 	HAL_TIM_Base_Start_IT(&htim3);

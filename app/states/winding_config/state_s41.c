@@ -5,28 +5,24 @@
  *      Author: stefantobiasiewicz
  */
 
-#include "winder_machine.h"
+#include "../../winder_machine.h"
 /*
  * State variables;
  */
-
-static char line_1[16];
-static char line_2[16];
-
+static char print_buff[16];
 static char number_buff[10] = { 0 };
 
 static void update_view() {
-	sprintf(line_1, "Y move:");
-	sprintf(line_2, ">%-11ssteps", number_buff);
+	sprintf(print_buff, ">%-10smm", number_buff);
 
-	app_print(line_1, line_2);
+	app_print("Coil width:", print_buff);
 }
 
-void state_s15_change() {
+void state_s41_change() {
 	update_view();
 }
 
-machine_state_t state_s15_settings_ymove(signal_t *signal) {
+machine_state_t state_s41_distance_decision(signal_t *signal) {
 	machine_state_t result = NO_CHANGE;
 
 	if (signal == NULL) {
@@ -36,24 +32,9 @@ machine_state_t state_s15_settings_ymove(signal_t *signal) {
 	switch (signal->key_pressed) {
 	case '\n':
 	case '*':
-		result = STATE_S12;
+		result = STATE_S5;
 
-		int y_steps = atoi(number_buff);
-
-		motor_enable(true);
-		long time = currentTimeUs();
-		while (!(y_steps <= 0)) {
-			long long currentTime = currentTimeUs();
-			long long elapsedTime = currentTime - time;
-
-			if (elapsedTime >= 100) {
-				y_stepper_step(true);
-				y_steps--;
-				time = currentTime;
-			}
-		}
-		motor_enable(false);
-
+		machine_params.coil_distance = atof(number_buff);
 		break;
 	case '1':
 		strcat(number_buff, "1");
@@ -95,12 +76,16 @@ machine_state_t state_s15_settings_ymove(signal_t *signal) {
 		strcat(number_buff, "0");
 		update_view();
 		break;
+	case '.':
+		strcat(number_buff, ".");
+		update_view();
+		break;
 	case '\r':
 		number_buff[strlen(number_buff) - 1] = '\0';
 		update_view();
 		break;
 	case '/':
-		result = STATE_S12;
+		result = STATE_S4;
 		break;
 	default:
 		break;

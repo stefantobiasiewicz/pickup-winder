@@ -5,7 +5,7 @@
  *      Author: stefantobiasiewicz
  */
 
-#include "winder_machine.h"
+#include "../winder_machine.h"
 /*
  * State variables;
  */
@@ -51,7 +51,7 @@ machine_state_t state_s7_done(signal_t *signal) {
 		result = STATE_S1;
 		machine_params.coil_turns = 0;
 		machine_params.cw = true;
-		machine_params.distance = 0;
+		machine_params.coil_distance = 0;
 		machine_params.manual = true;
 		machine_params.speed = 1;
 		machine_params.wire_size = 0;

@@ -5,24 +5,28 @@
  *      Author: stefantobiasiewicz
  */
 
-#include "winder_machine.h"
+#include "../../winder_machine.h"
 /*
  * State variables;
  */
-static char print_buff[16];
+
+static char line_1[20];
+static char line_2[20];
+
 static char number_buff[10] = { 0 };
 
 static void update_view() {
-	sprintf(print_buff, ">%-10smm", number_buff);
+	sprintf(line_1, "X Steps:  %d", machine_static_params.x_motor_steps);
+	sprintf(line_2, ">%-11ssteps", number_buff);
 
-	app_print("Coil width:", print_buff);
+	app_print(line_1, line_2);
 }
 
-void state_s41_change() {
+void state_s13_change() {
 	update_view();
 }
 
-machine_state_t state_s41_distance_decision(signal_t *signal) {
+machine_state_t state_s13_settings_xmotor(signal_t *signal) {
 	machine_state_t result = NO_CHANGE;
 
 	if (signal == NULL) {
@@ -32,9 +36,10 @@ machine_state_t state_s41_distance_decision(signal_t *signal) {
 	switch (signal->key_pressed) {
 	case '\n':
 	case '*':
-		result = STATE_S5;
+		result = STATE_S12;
 
-		machine_params.distance = atof(number_buff);
+		machine_static_params.x_motor_steps = atoi(number_buff);
+		write_flash(&machine_static_params);
 		break;
 	case '1':
 		strcat(number_buff, "1");
@@ -76,16 +81,12 @@ machine_state_t state_s41_distance_decision(signal_t *signal) {
 		strcat(number_buff, "0");
 		update_view();
 		break;
-	case '.':
-		strcat(number_buff, ".");
-		update_view();
-		break;
 	case '\r':
 		number_buff[strlen(number_buff) - 1] = '\0';
 		update_view();
 		break;
 	case '/':
-		result = STATE_S4;
+		result = STATE_S12;
 		break;
 	default:
 		break;

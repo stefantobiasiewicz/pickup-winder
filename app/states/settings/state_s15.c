@@ -5,28 +5,28 @@
  *      Author: stefantobiasiewicz
  */
 
-#include "winder_machine.h"
+#include "../../winder_machine.h"
 /*
  * State variables;
  */
 
-static char line_1[20];
-static char line_2[20];
+static char line_1[16];
+static char line_2[16];
 
 static char number_buff[10] = { 0 };
 
 static void update_view() {
-	sprintf(line_1, "X Steps:  %d", machine_static_params.x_motor_steps);
+	sprintf(line_1, "Y move:");
 	sprintf(line_2, ">%-11ssteps", number_buff);
 
 	app_print(line_1, line_2);
 }
 
-void state_s13_change() {
+void state_s15_change() {
 	update_view();
 }
 
-machine_state_t state_s13_settings_xmotor(signal_t *signal) {
+machine_state_t state_s15_settings_ymove(signal_t *signal) {
 	machine_state_t result = NO_CHANGE;
 
 	if (signal == NULL) {
@@ -38,8 +38,22 @@ machine_state_t state_s13_settings_xmotor(signal_t *signal) {
 	case '*':
 		result = STATE_S12;
 
-		machine_static_params.x_motor_steps = atoi(number_buff);
-		write_flash(&machine_static_params);
+		int y_steps = atoi(number_buff);
+
+		motor_enable(true);
+		long time = currentTimeUs();
+		while (!(y_steps <= 0)) {
+			long long currentTime = currentTimeUs();
+			long long elapsedTime = currentTime - time;
+
+			if (elapsedTime >= 100) {
+				y_stepper_step(true);
+				y_steps--;
+				time = currentTime;
+			}
+		}
+		motor_enable(false);
+
 		break;
 	case '1':
 		strcat(number_buff, "1");
