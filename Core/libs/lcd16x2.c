@@ -340,7 +340,7 @@ void lcd16x2_cursorShow(bool state) {
  */
 void lcd16x2_clear(void) {
 	lcd16x2_writeCommand(LCD_CLEARDISPLAY);
-	LCD_MS_DELAY(3);
+	LCD_MS_DELAY(2);
 }
 
 /**
