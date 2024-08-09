@@ -127,6 +127,7 @@ static float current_distance = 0;
 static float basic_distance = 0;
 static int basic_turns = 0;
 static float basic_distance_step = 0;
+static bool basic_cw = false;
 
 void basic_init(void *arg) {
 	basic_alg_args *casted_args = (basic_alg_args*) arg;
@@ -138,10 +139,7 @@ void basic_init(void *arg) {
 	basic_distance = casted_args->distance;
 	basic_turns = casted_args->turns;
 	basic_distance_step = casted_args->distance_step;
-
-	if(casted_args->cw) {
-		basic_distance = 0 - basic_distance;
-	}
+	basic_cw = casted_args->cw;
 
 	current_turn = 0;
 	current_distance = 0;
@@ -164,7 +162,7 @@ g_code_t * basic_get_next_gcode(machine_offsets_t *machie_offset) {
 
 		float distance = 0;
 
-		if (current_distance - offsets.offset_minus == 0) {
+		if (current_distance < (basic_distance / 2)) {
 			distance = basic_distance + offsets.offset_plus;
 		} else {
 			distance = 0 - offsets.offset_minus;
@@ -179,6 +177,11 @@ g_code_t * basic_get_next_gcode(machine_offsets_t *machie_offset) {
 		basic_g_code.type = G1;
 		basic_g_code.X = distance;
 		basic_g_code.A = turns;
+
+		if (basic_cw == true) {
+			basic_g_code.A = -turns;
+		}
+
 
 		current_distance = distance;
 		current_turn = turns;
@@ -197,7 +200,7 @@ gcode_provider_t basic_alg_provider = { .init = basic_init, .get_next_gcode =
 #define CROSS_DISTANCE_DIVIDER 5
 #define CROSS_DISTANCE_STEP 0.1
 
-#define CROSS_SECTION_PRCENT 80
+#define CROSS_SECTION_PRCENT 50
 
 static int cross_turns_till_cross;
 
@@ -205,6 +208,7 @@ static float cross_distance = 0;
 static int cross_turns = 0;
 
 static int cross_alg_step = 0;
+static bool cross_cw = false;
 
 
 void cross_init(void *arg) {
@@ -217,9 +221,7 @@ void cross_init(void *arg) {
 	cross_distance = casted_args->distance;
 	cross_turns = casted_args->turns;
 
-	if(casted_args->cw) {
-		cross_distance = 0 - cross_distance;
-	}
+	cross_cw = casted_args->cw;
 
 	current_turn = 0;
 	current_distance = 0;
@@ -253,6 +255,10 @@ g_code_t * cross_get_next_gcode(machine_offsets_t *machie_offset) {
 				cross_g_code.X = distance;
 				cross_g_code.A = turns;
 
+				if (cross_cw == true) {
+					cross_g_code.A = -turns;
+				}
+
 				current_distance = distance;
 				current_turn = turns;
 				cross_alg_step++;
@@ -266,6 +272,10 @@ g_code_t * cross_get_next_gcode(machine_offsets_t *machie_offset) {
 				cross_g_code.X = current_distance;
 				cross_g_code.A = current_turn;
 
+				if (cross_cw == true) {
+					cross_g_code.A = -current_turn;
+				}
+
 				cross_alg_step++;
 			}
 				break;
@@ -276,6 +286,11 @@ g_code_t * cross_get_next_gcode(machine_offsets_t *machie_offset) {
 				cross_g_code.type = G1;
 				cross_g_code.X = distance;
 				cross_g_code.A = turns;
+
+				if (cross_cw == true) {
+					cross_g_code.A = -turns;
+				}
+
 
 				current_distance = distance;
 				current_turn = turns;
@@ -289,6 +304,11 @@ g_code_t * cross_get_next_gcode(machine_offsets_t *machie_offset) {
 				cross_g_code.X = current_distance;
 				cross_g_code.A = current_turn;
 
+				if (cross_cw == true) {
+					cross_g_code.A = -current_turn;
+				}
+
+
 				cross_alg_step = 0;
 			}
 				break;
@@ -300,7 +320,7 @@ g_code_t * cross_get_next_gcode(machine_offsets_t *machie_offset) {
 			// tutaj nawijanie normalne z stepem
 			float distance = 0;
 
-			if (current_distance - offsets.offset_minus == 0) {
+			if (current_distance < (cross_distance / 2)) {
 				distance = cross_distance + offsets.offset_plus;
 			} else {
 				distance = 0 - offsets.offset_minus;
@@ -315,6 +335,11 @@ g_code_t * cross_get_next_gcode(machine_offsets_t *machie_offset) {
 			cross_g_code.type = G1;
 			cross_g_code.X = distance;
 			cross_g_code.A = turns;
+
+			if (cross_cw == true) {
+				cross_g_code.A = -turns;
+			}
+
 
 			current_distance = distance;
 			current_turn = turns;

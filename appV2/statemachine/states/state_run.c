@@ -131,5 +131,8 @@ void state_run_program_finished() {
 	sprintf(line_1, "----Winding----");
 	sprintf(line_2, "-----Done!-----");
 
+	offsets.offset_minus = 0;
+	offsets.offset_plus = 0;
+
 	app_print(line_1, line_2);
 }
