@@ -40,13 +40,6 @@ typedef struct {
 
 extern gcode_provider_t basic_alg_provider;
 
-typedef struct {
-	float distance;
-	int turns;
-	bool cw;
-} cross_alg_args;
-
-extern gcode_provider_t cross_alg_provider;
 
 
 

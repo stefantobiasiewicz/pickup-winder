@@ -13,7 +13,9 @@
 #include <string.h>
 
 
-typedef enum { G1, G92 } g_code_type_t;
+// M17/M18 enable/disable motors
+
+typedef enum { G1, G92, M17, M18 } g_code_type_t;
 
 typedef struct {
     g_code_type_t type;

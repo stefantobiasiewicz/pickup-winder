@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include "../winder_machine.h"
 #include "state_start.h"
-#include "../../program.h"
+#include "../../program_controller.h"
 #include "state_run.h"
 
 static basic_alg_args args = {0};

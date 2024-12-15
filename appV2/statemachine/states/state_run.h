@@ -9,7 +9,7 @@
 #define STATEMACHINE_STATES_STATE_RUN_H_
 
 #include "../states_def.h"
-#include "../../program.h"
+#include "../../program_controller.h"
 
 extern state_node_t state_run_state;
 

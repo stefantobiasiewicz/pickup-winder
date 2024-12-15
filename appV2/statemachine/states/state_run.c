@@ -12,7 +12,7 @@
 #include "state_basic_alg_parameter.h"
 
 #include "../winder_machine.h"
-#include "../../program.h"
+#include "../../program_controller.h"
 #include "../../machine_motion.h"
 
 static char line_1[20];

@@ -29,7 +29,7 @@
 #include "../libs/eeprom.h"
 
 #include "../../appV2/machine_motion.h"
-#include "../../appV2/program.h"
+#include "../../appV2/program_controller.h"
 #include "../../appV2/machine.h"
 #include "../../appV2/statemachine/winder_machine.h"
 
@@ -252,6 +252,7 @@ int main(void)
 			.get_us_fun = get_us_fun,
 			.step_a = x_step_fun, // correct mapping of CNC sheeld and program
 			.step_x = y_step_fun,
+			.motor_enable_fun = motor_enable_fun,
 			.g_code_done = gcode_done,
 			.current_g_code_info = current_g_code_in_proggress,
 	};
@@ -282,15 +283,6 @@ int main(void)
 
 	machine_motion_set_speed_time(90);
 
-//    basic_alg_args args = {
-//        .distance = 12.5,
-//        .distance_step = 2,
-//        .turns =  20,
-//    };
-//
-//
-//    basic_alg_provider.init(&args);
-//    program_start(&basic_alg_provider);
 
 
   /* USER CODE END 2 */

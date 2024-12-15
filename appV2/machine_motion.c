@@ -9,6 +9,7 @@
 
 static stepper_fun_t step_x;
 static stepper_fun_t step_a;
+static motor_enable_fun_t motor_enable_fun;
 static get_us_fun_t get_us_fun;
 static g_code_done_t g_code_done;
 static current_g_code_info_t current_g_code_info;
@@ -24,6 +25,12 @@ void machine_motion_init(machine_motion_callbacks_t callbacks) {
 	}
 	step_a = callbacks.step_a;
 
+	if(callbacks.motor_enable_fun == NULL) {
+		appV2_error("cal...s.motor_enable_fun");
+	}
+	motor_enable_fun = callbacks.motor_enable_fun;
+
+
 	if(callbacks.get_us_fun == NULL) {
 		appV2_error("cal...s.get_us_fun");
 	}
@@ -34,7 +41,7 @@ void machine_motion_init(machine_motion_callbacks_t callbacks) {
 	}
 	g_code_done = callbacks.g_code_done;
 
-	\
+
 	if(callbacks.current_g_code_info == NULL) {
 		appV2_error("cal...s.current_g_code_info");
 	}
@@ -146,7 +153,7 @@ void machine_motion_set_speed_time(int speed) {
 static int maiche_current_a_steps = 0;
 static int maiche_current_x_steps = 0;
 
-void machine_motion_move_g_code(g_code_t* g_code) {
+void machine_motion_move_g_code(g_code_t *g_code) {
 	current_g_code_info(g_code);
     switch (g_code->type) {
         case G1:
@@ -162,6 +169,12 @@ void machine_motion_move_g_code(g_code_t* g_code) {
             maiche_current_a_steps = 0;
             maiche_current_x_steps = 0;
             break;
+        case M17:
+        	motor_enable_fun(true);
+        	break;
+        case M18:
+        	motor_enable_fun(false);
+        	break;
     }
 }
 

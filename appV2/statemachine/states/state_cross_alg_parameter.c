@@ -6,10 +6,12 @@
  */
 #include "state_cross_alg_parameter.h"
 
+#include "../../programs/cross.h"
+
 #include <stdlib.h>
 #include "../winder_machine.h"
 #include "state_start.h"
-#include "../../program.h"
+#include "../../program_controller.h"
 #include "state_run.h"
 
 
@@ -30,7 +32,7 @@ static const state_node_t* state_cross_alg_parameter(signal_t *signal) {
 		proggress = 0;
 		return &state_start_state;
 	}
-	if (proggress >= 3) {
+	if (proggress >= 5) {
 		proggress = 0;
 		//return next step
 
@@ -46,7 +48,15 @@ static const state_node_t* state_cross_alg_parameter(signal_t *signal) {
 		case 1:
 			proggress += fetch_parameter_i(signal, "Coil turns", &args.turns);
 			break;
+
 		case 2:
+			proggress += fetch_parameter_i(signal, "Amount", &args.cross_amount);
+			break;
+
+		case 3:
+			proggress += fetch_parameter_i(signal, "Density %", &args.cross_density);
+			break;
+		case 4:
 			proggress += fetch_parameter_i(signal, "cw", &args.cw);
 			break;
 	}

@@ -4,8 +4,8 @@
  *  Created on: Jul 8, 2024
  *      Author: stefantobiasiewicz
  */
-#include "program.h"
 #include <math.h>
+#include "program_controller.h"
 
 static gcode_provider_t *gcode_provider = NULL;
 machine_offsets_t offsets;
@@ -56,11 +56,7 @@ void program_loop() {
 		if (gcode_provider->is_program_finished()) {
 			gcode_provider = NULL;
 
-			g_code_t base = { .type = G92 };
-			program_send_next_gcode_to_machine(&base);
-
 			program_finished_callback();
-
 			return;
 		}
 
@@ -195,161 +191,3 @@ gcode_provider_t basic_alg_provider = { .init = basic_init, .get_next_gcode =
 		basic_get_next_gcode, .is_gcode_available = basic_is_gcode_available,
 		.is_program_finished = basic_is_program_finished, };
 
-// Cross g_code provider algorithm
-
-#define CROSS_DISTANCE_DIVIDER 5
-#define CROSS_DISTANCE_STEP 0.1
-
-#define CROSS_SECTION_PRCENT 50
-
-static int cross_turns_till_cross;
-
-static float cross_distance = 0;
-static int cross_turns = 0;
-
-static int cross_alg_step = 0;
-static bool cross_cw = false;
-
-
-void cross_init(void *arg) {
-	cross_alg_args *casted_args = (cross_alg_args*) arg;
-
-	if (casted_args == NULL) {
-		appV2_error("basic_alg_args null");
-	}
-
-	cross_distance = casted_args->distance;
-	cross_turns = casted_args->turns;
-
-	cross_cw = casted_args->cw;
-
-	current_turn = 0;
-	current_distance = 0;
-	cross_alg_step = 0;
-
-	cross_turns_till_cross = cross_turns * CROSS_SECTION_PRCENT / 100;
-
-}
-
-bool cross_is_program_finished() {
-	return current_turn >= cross_turns;
-}
-
-bool cross_is_gcode_available() {
-	return current_turn < cross_turns;
-}
-
-static g_code_t cross_g_code;
-g_code_t * cross_get_next_gcode(machine_offsets_t *machie_offset) {
-	if (current_turn < cross_turns) {
-
-		if (current_turn < cross_turns_till_cross) {
-			// tutaj nawijanie jest krossowe
-
-			switch (cross_alg_step) {
-			case 0: {
-				float distance = cross_distance + offsets.offset_plus;
-				float turns = current_turn + CROSS_DISTANCE_DIVIDER;
-
-				cross_g_code.type = G1;
-				cross_g_code.X = distance;
-				cross_g_code.A = turns;
-
-				if (cross_cw == true) {
-					cross_g_code.A = -turns;
-				}
-
-				current_distance = distance;
-				current_turn = turns;
-				cross_alg_step++;
-			}
-				break;
-			case 1: {
-				current_turn += 0.5;
-
-
-				cross_g_code.type = G1;
-				cross_g_code.X = current_distance;
-				cross_g_code.A = current_turn;
-
-				if (cross_cw == true) {
-					cross_g_code.A = -current_turn;
-				}
-
-				cross_alg_step++;
-			}
-				break;
-			case 2: {
-				float distance = 0 - offsets.offset_minus;
-				float turns = current_turn + CROSS_DISTANCE_DIVIDER;
-
-				cross_g_code.type = G1;
-				cross_g_code.X = distance;
-				cross_g_code.A = turns;
-
-				if (cross_cw == true) {
-					cross_g_code.A = -turns;
-				}
-
-
-				current_distance = distance;
-				current_turn = turns;
-				cross_alg_step++;
-			}
-				break;
-			case 3: {
-				current_turn += 0.5;
-
-				cross_g_code.type = G1;
-				cross_g_code.X = current_distance;
-				cross_g_code.A = current_turn;
-
-				if (cross_cw == true) {
-					cross_g_code.A = -current_turn;
-				}
-
-
-				cross_alg_step = 0;
-			}
-				break;
-			default:
-				break;
-			}
-
-		} else {
-			// tutaj nawijanie normalne z stepem
-			float distance = 0;
-
-			if (current_distance < (cross_distance / 2)) {
-				distance = cross_distance + offsets.offset_plus;
-			} else {
-				distance = 0 - offsets.offset_minus;
-			}
-
-			int turns = current_turn + round(cross_distance / CROSS_DISTANCE_STEP);
-
-			if (turns > cross_turns) {
-				turns = turns - (turns - cross_turns);
-			}
-
-			cross_g_code.type = G1;
-			cross_g_code.X = distance;
-			cross_g_code.A = turns;
-
-			if (cross_cw == true) {
-				cross_g_code.A = -turns;
-			}
-
-
-			current_distance = distance;
-			current_turn = turns;
-		}
-
-		return &cross_g_code;
-	}
-	return NULL;
-}
-
-gcode_provider_t cross_alg_provider = { .init = cross_init, .get_next_gcode =
-		cross_get_next_gcode, .is_gcode_available = cross_is_gcode_available,
-		.is_program_finished = cross_is_program_finished, };

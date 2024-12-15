@@ -11,12 +11,15 @@
 #include "machine.h"
 
 typedef void (*stepper_fun_t)(bool dir);
+typedef void (*motor_enable_fun_t)(bool en);
+
 typedef void (*g_code_done_t)();
-typedef void (*current_g_code_info_t)(g_code_t* current);
+typedef void (*current_g_code_info_t)(g_code_t *current);
 
 typedef struct {
 	stepper_fun_t step_x;
 	stepper_fun_t step_a;
+	motor_enable_fun_t motor_enable_fun;
 	get_us_fun_t get_us_fun;
 	g_code_done_t g_code_done;
 	current_g_code_info_t current_g_code_info;
