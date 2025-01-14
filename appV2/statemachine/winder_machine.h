@@ -21,10 +21,11 @@
  */
 
 typedef void (*print_fun_t)(char* _1st_line, char* _2nd_line);
-
+typedef void (*print_4_fun_t)(char *_1st_line, char *_2nd_line, char *_3nd_line, char *_4nd_line);
 
 typedef struct {
 	print_fun_t print_fun;
+	print_4_fun_t print_4_fun;
 }machine_control_t;
 
 

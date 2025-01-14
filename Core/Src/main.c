@@ -27,6 +27,7 @@
 
 #include "../libs/lcd16x2.h"
 #include "../libs/eeprom.h"
+#include "../libs/i2c-lcd-stm32/i2c_lcd.h"
 
 #include "../../appV2/machine_motion.h"
 #include "../../appV2/program_controller.h"
@@ -53,13 +54,15 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+I2C_HandleTypeDef hi2c2;
+
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim5;
 
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-
+I2C_LCD_HandleTypeDef lcd1;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -68,6 +71,7 @@ static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM5_Init(void);
+static void MX_I2C2_Init(void);
 void MX_USB_HOST_Process(void);
 
 /* USER CODE BEGIN PFP */
@@ -91,11 +95,29 @@ void USBH_HID_EventCallback(USBH_HandleTypeDef *phost) {
 }
 
 void ll_print(char *_1st_line, char *_2nd_line) {
-	lcd16x2_clear();
-	lcd16x2_1stLine();
-	lcd16x2_printf(_1st_line);
-	lcd16x2_2ndLine();
-	lcd16x2_printf(_2nd_line);
+//	lcd16x2_clear();
+//	lcd16x2_1stLine();
+//	lcd16x2_printf(_1st_line);
+//	lcd16x2_2ndLine();
+//	lcd16x2_printf(_2nd_line);
+
+
+  lcd_clear(&lcd1);
+  lcd_gotoxy(&lcd1, 0, 1);
+  lcd_puts(&lcd1, _1st_line);
+  lcd_gotoxy(&lcd1, 0, 2);
+  lcd_puts(&lcd1, _2nd_line);
+}
+
+void ll_print_4_lines(char *_1st_line, char *_2nd_line, char *_3nd_line, char *_4nd_line) {
+  lcd_clear(&lcd1);
+  lcd_puts(&lcd1, _1st_line);
+  lcd_gotoxy(&lcd1, 0, 1);
+  lcd_puts(&lcd1, _2nd_line);
+  lcd_gotoxy(&lcd1, 0, 2);
+  lcd_puts(&lcd1, _3nd_line);
+  lcd_gotoxy(&lcd1, 0, 3);
+  lcd_puts(&lcd1, _4nd_line);
 }
 
 void motor_enable_fun(bool en) {
@@ -185,6 +207,7 @@ void appV2_error(const char * message) {
   */
 int main(void)
 {
+
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
@@ -211,16 +234,22 @@ int main(void)
   MX_USB_HOST_Init();
   MX_TIM3_Init();
   MX_TIM5_Init();
+  MX_I2C2_Init();
   /* USER CODE BEGIN 2 */
-	lcd16x2_init_4bits(GPIOB, LCD_RS_Pin, LCD_E_Pin,
-			GPIOC, LCD_D1_Pin, LCD_D2_Pin, LCD_D3_Pin, LCD_D4_Pin);
+  lcd1.hi2c = &hi2c2;
+  lcd1.address = 0x4E;
+  lcd_init(&lcd1);
 
-	lcd16x2_printf("Winding Machine");
-	lcd16x2_cursorShow(false);
+  lcd_clear(&lcd1);
+  lcd_puts(&lcd1, "Winding");
+  lcd_gotoxy(&lcd1, 0, 1);
+  lcd_puts(&lcd1, "Machine");
+
 
 
 	machine_control_t machine_controll_callbacks = {
 			.print_fun = ll_print,
+			.print_4_fun = ll_print_4_lines,
 	};
 
 	app_init(machine_controll_callbacks);
@@ -347,6 +376,40 @@ void SystemClock_Config(void)
 }
 
 /**
+  * @brief I2C2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_I2C2_Init(void)
+{
+
+  /* USER CODE BEGIN I2C2_Init 0 */
+
+  /* USER CODE END I2C2_Init 0 */
+
+  /* USER CODE BEGIN I2C2_Init 1 */
+
+  /* USER CODE END I2C2_Init 1 */
+  hi2c2.Instance = I2C2;
+  hi2c2.Init.ClockSpeed = 400000;
+  hi2c2.Init.DutyCycle = I2C_DUTYCYCLE_2;
+  hi2c2.Init.OwnAddress1 = 0;
+  hi2c2.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c2.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c2.Init.OwnAddress2 = 0;
+  hi2c2.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c2.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN I2C2_Init 2 */
+
+  /* USER CODE END I2C2_Init 2 */
+
+}
+
+/**
   * @brief TIM3 Initialization Function
   * @param None
   * @retval None
@@ -410,7 +473,7 @@ static void MX_TIM5_Init(void)
 
   /* USER CODE END TIM5_Init 1 */
   htim5.Instance = TIM5;
-  htim5.Init.Prescaler = 200;
+  htim5.Init.Prescaler = 0;
   htim5.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim5.Init.Period = 10000;
   htim5.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;

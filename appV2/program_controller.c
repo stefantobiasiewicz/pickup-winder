@@ -64,8 +64,10 @@ void program_loop() {
 			buffer_code = gcode_provider->get_next_gcode();
 
 			if (buffer_code == NULL) {
+				appV2_error("get_next_gcode() == NULL");
 				return;
 			}
+
 
 			if (machine_wait_for_code) {
 				//send code to machine
@@ -111,6 +113,14 @@ g_code_t program_parse_g_code(const char *line) {
 
 	return g_code;
 }
+
+
+
+
+
+
+
+
 
 /*
  * common variables

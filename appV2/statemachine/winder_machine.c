@@ -14,6 +14,7 @@
 const static state_node_t *current_node_state;
 static fifo_t fifo;
 static print_fun_t print;
+static print_4_fun_t ptint_4;
 
 
 void app_init(machine_control_t machine_controll_callbacks)
@@ -23,6 +24,7 @@ void app_init(machine_control_t machine_controll_callbacks)
     fifo = fifo_create(10, sizeof(signal_t));
 
     print = machine_controll_callbacks.print_fun;
+    ptint_4 = machine_controll_callbacks.print_4_fun;
 
     current_node_state = &state_start_state;
     state_start_state.state_change_func();
